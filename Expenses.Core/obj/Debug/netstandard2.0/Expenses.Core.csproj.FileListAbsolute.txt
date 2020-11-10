@@ -1,0 +1,12 @@
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\bin\Debug\netstandard2.0\Expenses.Core.deps.json
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\bin\Debug\netstandard2.0\Expenses.Core.dll
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\bin\Debug\netstandard2.0\Expenses.Core.pdb
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\bin\Debug\netstandard2.0\Expenses.DB.dll
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\bin\Debug\netstandard2.0\Expenses.DB.pdb
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\obj\Debug\netstandard2.0\Expenses.Core.csprojAssemblyReference.cache
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\obj\Debug\netstandard2.0\Expenses.Core.csproj.CoreCompileInputs.cache
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\obj\Debug\netstandard2.0\Expenses.Core.AssemblyInfoInputs.cache
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\obj\Debug\netstandard2.0\Expenses.Core.AssemblyInfo.cs
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\obj\Debug\netstandard2.0\Expenses.Core.csproj.CopyComplete
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\obj\Debug\netstandard2.0\Expenses.Core.dll
+C:\Users\asiel\Documents\gitlab\Expenses.WebApi\Expenses.Core\obj\Debug\netstandard2.0\Expenses.Core.pdb
