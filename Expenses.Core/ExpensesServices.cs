@@ -1,4 +1,5 @@
-﻿using Expenses.DB;
+﻿using Expenses.Core.DTO;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,45 +7,69 @@ namespace Expenses.Core
 {
     public class ExpensesServices : IExpensesServices
     {
-        private AppDbContext _context;
+        private readonly DB.AppDbContext _context;
+        private readonly DB.User _user;
 
-        public ExpensesServices(AppDbContext context)
+        public ExpensesServices(DB.AppDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _user = _context.Users
+                .First(u => u.Username == httpContextAccessor.HttpContext.User.Identity.Name);
         }
 
-        public Expense CreateExpense(Expense expense)
+        public Expense CreateExpense(DB.Expense expense)
         {
+            expense.User = _user;
             _context.Add(expense);
             _context.SaveChanges();
 
-            return expense;
+            return new Expense
+            {
+                Id = expense.Id,
+                Description = expense.Description,
+                Amount = expense.Amount
+            };
         }
 
         public void DeleteExpense(Expense expense)
         {
-            _context.Expenses.Remove(expense);
+            var dbExpense = _context.Expenses.First(e => e.User.Id == _user.Id && e.Id == expense.Id);
+            _context.Remove(dbExpense);
             _context.SaveChanges();
         }
 
         public Expense EditExpense(Expense expense)
         {
-            var dbExpense = _context.Expenses.First(e => e.Id == expense.Id);
+            var dbExpense = _context.Expenses
+                 .Where(e => e.User.Id == _user.Id && e.Id == expense.Id)
+                 .First();
             dbExpense.Description = expense.Description;
             dbExpense.Amount = expense.Amount;
             _context.SaveChanges();
 
-            return dbExpense;
+            return expense;
         }
 
-        public Expense GetExpense(int id)
-        {
-            return _context.Expenses.First(e => e.Id == id);
-        }
+        public Expense GetExpense(int id) =>
+            _context.Expenses
+                .Where(e => e.User.Id == _user.Id && e.Id == id)
+                .Select(e => new Expense
+                {
+                    Id = e.Id,
+                    Amount = e.Amount,
+                    Description = e.Description
+                })
+                .First();
 
-        public List<Expense> GetExpenses()
-        {
-            return _context.Expenses.ToList();
-        }
+        public List<Expense> GetExpenses() =>
+            _context.Expenses
+                .Where(e => e.User.Id == _user.Id)
+                .Select(e => new Expense
+                {
+                    Id = e.Id,
+                    Amount = e.Amount,
+                    Description = e.Description
+                })
+                .ToList();
     }
 }
