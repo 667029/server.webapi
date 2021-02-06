@@ -1,4 +1,5 @@
-﻿using Expenses.Core.DTO;
+﻿using Expenses.Core.CustomExceptions;
+using Expenses.Core.DTO;
 using Expenses.Core.Utilities;
 using Expenses.DB;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ namespace Expenses.Core
 
             if(dbUser == null || !dbUser.Password.Equals(Hash.Password(user.Password)))
             {
-                throw new Exception("Invalid username or password");
+                throw new InvalidUsernamePasswordException("Invalid username or password");
             }
 
             return new AuthenticatedUser()
@@ -40,7 +41,7 @@ namespace Expenses.Core
 
             if (checkUsername != null)
             {
-                throw new Exception("Username already exists");
+                throw new UsernameAlreadyExistsException("Username already exists");
             }
 
             user.Password = Hash.Password(user.Password);
