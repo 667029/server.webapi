@@ -2,6 +2,7 @@
 using Expenses.Core.DTO;
 using Expenses.Core.Utilities;
 using Expenses.DB;
+using Microsoft.AspNet.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ namespace Expenses.Core
     public class UserService : IUserService
     {
         private readonly AppDbContext _context;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public UserService(AppDbContext context)
+        public UserService(AppDbContext context, IPasswordHasher passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<AuthenticatedUser> SignIn(User user)
@@ -22,7 +25,7 @@ namespace Expenses.Core
             var dbUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == user.Username);
 
-            if(dbUser == null || !dbUser.Password.Equals(Hash.Password(user.Password)))
+            if(dbUser == null || _passwordHasher.VerifyHashedPassword(dbUser.Password, user.Password) == PasswordVerificationResult.Failed)
             {
                 throw new InvalidUsernamePasswordException("Invalid username or password");
             }
@@ -44,7 +47,7 @@ namespace Expenses.Core
                 throw new UsernameAlreadyExistsException("Username already exists");
             }
 
-            user.Password = Hash.Password(user.Password);
+            user.Password = _passwordHasher.HashPassword(user.Password);
             await _context.AddAsync(user);
             await _context.SaveChangesAsync();
 

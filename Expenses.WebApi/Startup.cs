@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using Expenses.Core;
 using Expenses.DB;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +35,8 @@ namespace Expenses.WebApi
             services.AddTransient<IUserService, UserService>();
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddTransient<IPasswordHasher, PasswordHasher>();
 
             services.AddSwaggerDocument(settings =>
             {
