@@ -23,12 +23,7 @@ namespace Expenses.Core
             _context.Add(expense);
             _context.SaveChanges();
 
-            return new Expense
-            {
-                Id = expense.Id,
-                Description = expense.Description,
-                Amount = expense.Amount
-            };
+            return (Expense)expense;
         }
 
         public void DeleteExpense(Expense expense)
@@ -53,23 +48,13 @@ namespace Expenses.Core
         public Expense GetExpense(int id) =>
             _context.Expenses
                 .Where(e => e.User.Id == _user.Id && e.Id == id)
-                .Select(e => new Expense
-                {
-                    Id = e.Id,
-                    Amount = e.Amount,
-                    Description = e.Description
-                })
+                .Select(e => (Expense)e)
                 .First();
 
         public List<Expense> GetExpenses() =>
             _context.Expenses
                 .Where(e => e.User.Id == _user.Id)
-                .Select(e => new Expense
-                {
-                    Id = e.Id,
-                    Amount = e.Amount,
-                    Description = e.Description
-                })
+                .Select(e => (Expense)e)
                 .ToList();
     }
 }
