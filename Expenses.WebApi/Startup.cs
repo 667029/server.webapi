@@ -1,17 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using Expenses.Core;
 using Expenses.DB;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Expenses.WebApi
 {
@@ -33,6 +32,12 @@ namespace Expenses.WebApi
 
             services.AddTransient<IExpensesServices, ExpensesServices>();
 
+            services.AddTransient<IUserService, UserService>();
+
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddTransient<IPasswordHasher, PasswordHasher>();
+
             services.AddSwaggerDocument(settings =>
             {
                 settings.Title = "Expenses";
@@ -47,6 +52,25 @@ namespace Expenses.WebApi
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                     });
+            });
+
+            var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+
+            services.AddAuthentication(opts =>
+            {
+                opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(opts =>
+            {
+                opts.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = issuer,
+                    ValidateAudience = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret))
+                };
             });
         }
 
@@ -63,6 +87,8 @@ namespace Expenses.WebApi
             app.UseRouting();
 
             app.UseCors("ExpensesPolicy");
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
