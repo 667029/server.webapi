@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Expenses.Core.Utilities
 {
-    public static class JwtToken
+    public static class JwtGenerator
     {
         public static string GenerateAuthToken(string username)
         {
@@ -21,12 +21,14 @@ namespace Expenses.Core.Utilities
         private static string GenerateToken(Claim[] claims, DateTime expires)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var secret = Environment.GetEnvironmentVariable("JWT_TOKEN_SECRET");
+            var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
             var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = expires,
+                Issuer = issuer,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

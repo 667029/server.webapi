@@ -15,7 +15,8 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "JWT_TOKEN_SECRET": "This is my jwt token secret"
+        "JWT_SECRET": "This is my jwt token secret",
+        "JWT_ISSUER": "My Expenses"
       }
     },
     "Expenses.WebApi": {
@@ -25,7 +26,8 @@
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "JWT_TOKEN_SECRET": "This is my jwt token secret"
+        "JWT_SECRET": "This is my jwt token secret",
+        "JWT_ISSUER": "My Expenses"
       }
     }
   }

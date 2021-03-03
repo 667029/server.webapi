@@ -33,7 +33,7 @@ namespace Expenses.Core
             return new AuthenticatedUser()
             {
                 Username = user.Username,
-                Token = JwtToken.GenerateAuthToken(user.Username),
+                Token = JwtGenerator.GenerateAuthToken(user.Username),
             };
         }
 
@@ -54,7 +54,7 @@ namespace Expenses.Core
             return new AuthenticatedUser
             {
                 Username = user.Username,
-                Token = JwtToken.GenerateAuthToken(user.Username)
+                Token = JwtGenerator.GenerateAuthToken(user.Username)
             };
         }
     }

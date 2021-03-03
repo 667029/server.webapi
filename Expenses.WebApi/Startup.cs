@@ -41,8 +41,6 @@ namespace Expenses.WebApi
             services.AddSwaggerDocument(settings =>
             {
                 settings.Title = "Expenses";
-
-
             });
 
             services.AddCors(options =>
@@ -56,7 +54,9 @@ namespace Expenses.WebApi
                     });
             });
 
-            var secret = Environment.GetEnvironmentVariable("JWT_TOKEN_SECRET");
+            var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+
             services.AddAuthentication(opts =>
             {
                 opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -64,14 +64,12 @@ namespace Expenses.WebApi
             })
             .AddJwtBearer(opts =>
             {
-                opts.RequireHttpsMetadata = false;
-                opts.SaveToken = true;
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidIssuer = issuer,
+                    ValidateAudience = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret))
                 };
             });
         }
