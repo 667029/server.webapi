@@ -1,4 +1,4 @@
-﻿using Expenses.DB;
+﻿using Expenses.Core.DTO;
 using System.Collections.Generic;
 
 namespace Expenses.Core
@@ -7,7 +7,7 @@ namespace Expenses.Core
     {
         List<Expense> GetExpenses();
         Expense GetExpense(int id);
-        Expense CreateExpense(Expense expense);
+        Expense CreateExpense(DB.Expense expense);
         void DeleteExpense(Expense expense);
         Expense EditExpense(Expense expense);
     }
