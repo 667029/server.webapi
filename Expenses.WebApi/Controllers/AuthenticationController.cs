@@ -17,7 +17,6 @@ namespace Expenses.WebApi.Controllers
             _userService = userService;
         }
 
-
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] User user)
         {
@@ -30,6 +29,10 @@ namespace Expenses.WebApi.Controllers
             {
                 return StatusCode(409, e.Message);
             }
+            catch(EmailAlreadyRegisteredException e)
+            {
+                return StatusCode(409, e.Message);
+            }
         }
 
         [HttpPost("signin")]
@@ -38,12 +41,20 @@ namespace Expenses.WebApi.Controllers
             try
             {
                 var result = await _userService.SignIn(user);
-                return Ok(result);
+                return Created("", result);
             }
             catch(InvalidUsernamePasswordException e)
             {
                 return StatusCode(401, e.Message);
             }
+        }
+
+        [HttpPost("google")]
+        public async Task<ActionResult> Auth([FromQuery] string token)
+        {
+            var result = await _userService.ThirdPartySignIn(token);
+
+            return Created("", result);
         }
     }
 }

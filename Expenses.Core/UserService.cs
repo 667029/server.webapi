@@ -5,7 +5,9 @@ using Expenses.DB;
 using Microsoft.AspNet.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 namespace Expenses.Core
 {
@@ -25,7 +27,7 @@ namespace Expenses.Core
             var dbUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == user.Username);
 
-            if(dbUser == null || _passwordHasher.VerifyHashedPassword(dbUser.Password, user.Password) == PasswordVerificationResult.Failed)
+            if(dbUser == null || dbUser.Password == null || _passwordHasher.VerifyHashedPassword(dbUser.Password, user.Password) == PasswordVerificationResult.Failed)
             {
                 throw new InvalidUsernamePasswordException("Invalid username or password");
             }
@@ -37,17 +39,55 @@ namespace Expenses.Core
             };
         }
 
+        public async Task<AuthenticatedUser> ThirdPartySignIn(string token)
+        {
+            var payload = await ValidateAsync(token, new ValidationSettings
+            {
+                Audience = new[]
+                {
+                    Environment.GetEnvironmentVariable("CLIENT_ID")
+                }
+            });
+
+            var dbUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.Equals(payload.Email));
+
+            return dbUser == null
+                ? await SignUp(new User
+                    {
+                        Username = GetUniqueUsernameFromEmail(payload.Email),
+                        Email = payload.Email
+                    })
+                : new AuthenticatedUser()
+                    {
+                        Username = dbUser.Username,
+                        Token = JwtGenerator.GenerateAuthToken(dbUser.Username),
+                    };
+        }
+
         public async Task<AuthenticatedUser> SignUp(User user)
         {
             var checkUsername = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Username.Equals(user.Username));
+                .FirstOrDefaultAsync(u => u.Username.Equals(user.Username));
 
             if (checkUsername != null)
             {
                 throw new UsernameAlreadyExistsException("Username already exists");
             }
 
-            user.Password = _passwordHasher.HashPassword(user.Password);
+            var checkEmail = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.Equals(user.Email));
+
+            if (checkEmail != null)
+            {
+                throw new EmailAlreadyRegisteredException("Email is already registered");
+            }
+
+            if (!string.IsNullOrEmpty(user.Password))
+            {
+                user.Password = _passwordHasher.HashPassword(user.Password);
+            }
+
             await _context.AddAsync(user);
             await _context.SaveChangesAsync();
 
@@ -56,6 +96,20 @@ namespace Expenses.Core
                 Username = user.Username,
                 Token = JwtGenerator.GenerateAuthToken(user.Username)
             };
+        }
+
+        private string GetUniqueUsernameFromEmail(string email)
+        {
+            var emailSplit = email.Split('@').First();
+            var random = new Random();
+            var username = emailSplit;
+
+            while (_context.Users.Any(u => u.Username.Equals(username)))
+            {
+                username = emailSplit + random.Next(10000000);
+            }
+
+            return username;
         }
     }
 }
