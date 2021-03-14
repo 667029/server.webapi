@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 namespace Expenses.Core
 {
@@ -39,30 +38,22 @@ namespace Expenses.Core
             };
         }
 
-        public async Task<AuthenticatedUser> ThirdPartySignIn(string token)
+        public async Task<AuthenticatedUser> ExternalSignIn(User user)
         {
-            var payload = await ValidateAsync(token, new ValidationSettings
-            {
-                Audience = new[]
-                {
-                    Environment.GetEnvironmentVariable("CLIENT_ID")
-                }
-            });
-
             var dbUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email.Equals(payload.Email));
+                .FirstOrDefaultAsync(u => u.ExternalId.Equals(user.ExternalId) && u.ExternalType.Equals(user.ExternalType));
 
-            return dbUser == null
-                ? await SignUp(new User
-                    {
-                        Username = GetUniqueUsernameFromEmail(payload.Email),
-                        Email = payload.Email
-                    })
-                : new AuthenticatedUser()
-                    {
-                        Username = dbUser.Username,
-                        Token = JwtGenerator.GenerateAuthToken(dbUser.Username),
-                    };
+            if(dbUser == null)
+            {
+                user.Username = CreateUniqueUsernameFromEmail(user.Email);
+                return await SignUp(user);
+            }
+
+            return new AuthenticatedUser()
+            {
+                Username = dbUser.Username,
+                Token = JwtGenerator.GenerateAuthToken(dbUser.Username),
+            };
         }
 
         public async Task<AuthenticatedUser> SignUp(User user)
@@ -75,15 +66,7 @@ namespace Expenses.Core
                 throw new UsernameAlreadyExistsException("Username already exists");
             }
 
-            var checkEmail = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email.Equals(user.Email));
-
-            if (checkEmail != null)
-            {
-                throw new EmailAlreadyRegisteredException("Email is already registered");
-            }
-
-            if (!string.IsNullOrEmpty(user.Password))
+            if(!string.IsNullOrEmpty(user.Password))
             {
                 user.Password = _passwordHasher.HashPassword(user.Password);
             }
@@ -98,7 +81,7 @@ namespace Expenses.Core
             };
         }
 
-        private string GetUniqueUsernameFromEmail(string email)
+        private string CreateUniqueUsernameFromEmail(string email)
         {
             var emailSplit = email.Split('@').First();
             var random = new Random();
