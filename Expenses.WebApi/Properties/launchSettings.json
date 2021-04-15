@@ -16,7 +16,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "JWT_SECRET": "This is my jwt token secret",
-        "JWT_ISSUER": "My Expenses"
+        "JWT_ISSUER": "My Expenses",
+        "CLIENT_ID": "428198688853-pt3qup4aofqb7ob4knvt8jdtgm0k98e3.apps.googleusercontent.com"
       }
     },
     "Expenses.WebApi": {
@@ -27,7 +28,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "JWT_SECRET": "This is my jwt token secret",
-        "JWT_ISSUER": "My Expenses"
+        "JWT_ISSUER": "My Expenses",
+        "CLIENT_ID": "428198688853-pt3qup4aofqb7ob4knvt8jdtgm0k98e3.apps.googleusercontent.com"
       }
     }
   }
