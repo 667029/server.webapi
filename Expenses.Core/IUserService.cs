@@ -8,5 +8,6 @@ namespace Expenses.Core
     {
         Task<AuthenticatedUser> SignUp(User user);
         Task<AuthenticatedUser> SignIn(User user);
+        Task<AuthenticatedUser> ExternalSignIn(User user);
     }
 }

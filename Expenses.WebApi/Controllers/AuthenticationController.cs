@@ -2,7 +2,9 @@
 using Expenses.Core.CustomExceptions;
 using Expenses.DB;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
+using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 namespace Expenses.WebApi.Controllers
 {
@@ -16,7 +18,6 @@ namespace Expenses.WebApi.Controllers
         {
             _userService = userService;
         }
-
 
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] User user)
@@ -38,12 +39,33 @@ namespace Expenses.WebApi.Controllers
             try
             {
                 var result = await _userService.SignIn(user);
-                return Ok(result);
+                return Created("", result);
             }
             catch(InvalidUsernamePasswordException e)
             {
                 return StatusCode(401, e.Message);
             }
+        }
+
+        [HttpPost("google")]
+        public async Task<ActionResult> Auth([FromQuery] string token)
+        {
+            var payload = await ValidateAsync(token, new ValidationSettings
+            {
+                Audience = new[]
+               {
+                    Environment.GetEnvironmentVariable("CLIENT_ID")
+                }
+            });
+
+            var result = await _userService.ExternalSignIn(new User
+            {
+                Email = payload.Email,
+                ExternalId = payload.Subject,
+                ExternalType = "GOOGLE"
+            });
+
+            return Created("", result);
         }
     }
 }
