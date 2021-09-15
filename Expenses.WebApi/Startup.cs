@@ -37,6 +37,8 @@ namespace Expenses.WebApi
 
             services.AddTransient<IUserService, UserService>();
 
+            services.AddTransient<IStatisticsServices, StatisticsServices>();
+
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddTransient<IPasswordHasher, PasswordHasher>();
